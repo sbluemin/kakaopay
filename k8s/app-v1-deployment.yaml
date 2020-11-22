@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kakaopay-app
+  namespace: default
+  labels:
+    app: kakaopay-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kakaopay-app
+  template:
+    metadata:
+      labels:
+        app: kakaopay-app
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: kakaopay-app
+        image: docker.io/sbluemin/kakaopay-app:v1
+        imagePullPolicy: Always
+        volumeMounts:
+          - mountPath: /logs
+            name: app-log-path    
+        ports:
+          - containerPort: 8080
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: "kakaopay"
+          - name: APP_LOG_FILE_PATH
+            value: "/logs"
+          - name: APP_LOG_FILE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          failureThreshold: 3
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: app-log-path
+        hostPath:
+          path: /logs
+          type: Directory
