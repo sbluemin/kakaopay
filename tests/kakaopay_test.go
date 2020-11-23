@@ -15,7 +15,7 @@ func Setup() {
 
 	fmt.Print("테스트 환경을 구성하고 완료될때까지 기다립니다.\n")
 
-	WaitUntilSuccess("http://localhost/")
+	WaitUntilSuccess("http://localhost/health")
 }
 
 func WaitUntilSuccess(url string) {
